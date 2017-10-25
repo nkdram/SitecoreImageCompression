@@ -7,12 +7,8 @@ using System;
 using Sitecore.Pipelines.Upload;
 using Sitecore.Diagnostics;
 using System.Web;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Sitecore.Data.Items;
-//using TinifyAPI;
-using System.Threading.Tasks;
 using Sitecore.ImageCompression.Helper;
 
 namespace Sitecore.ImageCompression
@@ -39,7 +35,7 @@ namespace Sitecore.ImageCompression
                 HttpPostedFile file = args.Files[index];
                 try
                 {
-                    if (!string.IsNullOrEmpty(file.FileName))
+                    if (!string.IsNullOrEmpty(file.FileName) && IsImage(file))
                     {
                         if ((long)file.ContentLength > AllowedImageSize)
                         {
@@ -73,6 +69,19 @@ namespace Sitecore.ImageCompression
                 }
             }
             _inProcess.Remove(args.Folder);
+        }
+
+        private bool IsImage(HttpPostedFile file)
+        {
+            if (file.ContentType.Contains("image"))
+            {
+                return true;
+            }
+
+            string[] formats = new string[] { ".jpg", ".png", ".gif", ".jpeg" }; // add more if u like...
+
+            // linq from Henrik Stenbæk
+            return formats.Any(item => file.FileName.EndsWith(item, StringComparison.OrdinalIgnoreCase));
         }
 
         public static byte[] ReadFully(Stream input)
